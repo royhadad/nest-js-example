@@ -1,6 +1,6 @@
-import {Body, Controller, Get, NotFoundException, Post} from "@nestjs/common";
+import {Body, Controller, Delete, Get, Param, Patch, Post} from "@nestjs/common";
 import {ProductsService} from "./products.service";
-import {Product} from "./product.model";
+import {Product, ProductId, ProductMutableProperties} from "./product.model";
 
 @Controller('products')
 export class ProductsController {
@@ -8,7 +8,7 @@ export class ProductsController {
     }
 
     @Post()
-    addProduct(@Body() body: Pick<Product, 'title' | 'description' | 'price'>): { id: Product['id'] } {
+    addProduct(@Body() body: ProductMutableProperties): { id: ProductId } {
         const {title, description, price} = body;
         const productId = this.productsService.insertProduct(title, description, price);
         return {id: productId};
@@ -19,13 +19,18 @@ export class ProductsController {
         return this.productsService.getProducts();
     }
 
-    @Get('/id')
-    getProduct(@Body() body: Pick<Product, 'id'>): Product {
-        const product = this.productsService.getProductById(body.id);
-        if (product === undefined) {
-            throw new NotFoundException();
-        } else {
-            return product;
-        }
+    @Get(':id')
+    getProduct(@Param('id') productId: ProductId): Product {
+        return this.productsService.getProductById(productId);
+    }
+
+    @Patch(':id')
+    updateProduct(@Param('id') productId: ProductId, @Body() propertiesToUpdate: Partial<ProductMutableProperties>): Product {
+        return this.productsService.updateProduct(productId, propertiesToUpdate);
+    }
+
+    @Delete(':id')
+    removeProduct(@Param('id') productId: ProductId): Product {
+        return this.productsService.deleteProduct(productId);
     }
 }

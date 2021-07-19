@@ -7,3 +7,6 @@ export class Product {
     ) {
     }
 }
+
+export type ProductMutableProperties = Pick<Product, 'title' | 'description' | 'price'>
+export type ProductId = Product['id'];
